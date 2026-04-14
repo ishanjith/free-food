@@ -41,14 +41,20 @@ def add_spot():
     longitude = data['longitude']
     
     conn = get_db()
-    conn.execute('''
+    cursor =conn.execute('''
                  
                  INSERT INTO spots(name,type,description,latitude,longitude)
                  VALUES (?,?,?,?,?)
                  ''',(name,type,description,latitude,longitude))
     conn.commit()
+    new_id = cursor.lastrowid
     conn.close()
-    return jsonify({"message":"submitted spot succesfully"}),201
+    return jsonify({"id": new_id,
+        "name": name,
+        "type": type,
+        "description": description,
+        "latitude": latitude,
+        "longitude": longitude}),201
 if __name__ == "__main__":
     init_db()
     app.run(debug=True)
