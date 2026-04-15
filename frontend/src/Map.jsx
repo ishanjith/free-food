@@ -12,12 +12,16 @@ import {useState,useEffect} from 'react'
     })
     return null
  }
- function AddSpotForm({ clickedPos ,onSpotAdded}) {
+ function AddSpotForm({ clickedPos ,onSpotAdded,setClickedPos}) {
     const [name, setName] = useState('')
     const [type, setType] = useState('')
     const [description, setDescription] = useState('')
 
     function handleSubmit() {
+        if(!name) {
+            alert("name is empty")
+            return
+        }
         fetch('http://127.0.0.1:5000/spots',{
             method : 'POST',
             headers : {'Content-Type' : 'application/json'},
@@ -29,7 +33,16 @@ import {useState,useEffect} from 'react'
             
         })
         .then(res=> res.json())
-            .then(data =>{onSpotAdded(data)})
+            .then(data =>{onSpotAdded(data)
+                setName('')
+                setType('')
+                setDescription('')
+                setClickedPos(null)
+            })
+            .catch(err=>{
+                alert("error submitting, pls retry")
+            })
+            
 
     }
 
@@ -68,7 +81,7 @@ import {useState,useEffect} from 'react'
             <ClickHandler setClickedPos={setClickedPos}></ClickHandler>
             {clickedPos && ( 
                 <Popup position={[clickedPos.lat,clickedPos.lng]}>
-                    <AddSpotForm clickedPos={clickedPos} onSpotAdded={handleNewSpot} />
+                    <AddSpotForm clickedPos={clickedPos} onSpotAdded={handleNewSpot} setClickedPos={setClickedPos} />
 
                 </Popup>
             )
@@ -79,7 +92,8 @@ import {useState,useEffect} from 'react'
                 <Popup>
                     <b>{spot.name}</b><br/>
                     <b>{spot.description}</b><br/>
-                    <b>{spot.type}</b>
+                    <b>{spot.type}</b><br/>
+                    <b><span>Last seen :{spot.last_seen}</span></b>
 
                 </Popup>
             </Marker>))}
