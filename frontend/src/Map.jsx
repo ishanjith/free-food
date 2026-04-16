@@ -48,9 +48,15 @@ import {useState,useEffect} from 'react'
 
     return (
         <div onClick={e => e.stopPropagation()}>
-            <input value={name} onChange={e => setName(e.target.value)} />
-            <input value={type} onChange={e => setType(e.target.value)} />
-            <input value={description} onChange={e => setDescription(e.target.value)} />
+            <input value={name} onChange={e => setName(e.target.value)} /><br/>
+            <select value={type} onChange={e => setType(e.target.value)}>
+                <option value="">Select type</option>
+                <option value="annadhanam">Annadhanam</option>
+                <option value="community kitchen">Community Kitchen</option>
+                <option value="food bank">Food Bank</option>
+                <option value="other">Other</option>
+                </select> <br/>
+            <input value={description} onChange={e => setDescription(e.target.value)} /><br/>
             <button onClick={handleSubmit}>Submit</button>
         </div>
     )
@@ -59,6 +65,7 @@ import {useState,useEffect} from 'react'
  function Map(){
     const [spots,SetSpots] = useState([])
     const [clickedPos, setClickedPos] = useState(null)
+    const [filterType,setFilterType] = useState('all')
    
     
     useEffect(()=>{
@@ -74,7 +81,16 @@ import {useState,useEffect} from 'react'
 
  }
     
-    return(
+    return(<div>
+        <select value={filterType} onChange={e=> setFilterType(e.target.value)}>
+
+            <option value="all">All</option>
+             <option value="annadhanam">Annadhanam</option>
+            <option value="community kitchen">Community Kitchen</option>
+            <option value="food bank">Food Bank</option>
+            <option value="other">Other</option>
+        </select>
+        
         <MapContainer center={[10.85,76.27]} zoom={13} style={{height : "100vh", width : "100%"}}>
             
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution="openstreet map"/>
@@ -87,7 +103,7 @@ import {useState,useEffect} from 'react'
             )
 
             }
-            {spots.map(spot =>(
+            {spots.filter(spot=> filterType==='all' || spot.type===filterType).map(spot =>(
             <Marker key={spot.id} position={[spot.latitude,spot.longitude]}> 
                 <Popup>
                     <b>{spot.name}</b><br/>
@@ -97,7 +113,7 @@ import {useState,useEffect} from 'react'
 
                 </Popup>
             </Marker>))}
-        </MapContainer>
+        </MapContainer></div>
     )
  }
  export default Map
