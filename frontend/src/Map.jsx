@@ -12,7 +12,7 @@ import {useState,useEffect} from 'react'
     })
     return null
  }
- function AddSpotForm({ clickedPos ,onSpotAdded,setClickedPos}) {
+ function AddSpotForm({ clickedPos ,onSpotAdded,setClickedPos,token}) {
     const [name, setName] = useState('')
     const [type, setType] = useState('')
     const [description, setDescription] = useState('')
@@ -24,7 +24,9 @@ import {useState,useEffect} from 'react'
         }
         fetch('http://127.0.0.1:5000/spots',{
             method : 'POST',
-            headers : {'Content-Type' : 'application/json'},
+            headers : {'Content-Type' : 'application/json',
+                        'Authorization': `Bearer ${token}`
+            },
             body : JSON.stringify({name: name,
                                     type: type,
                                     description: description,
@@ -62,7 +64,7 @@ import {useState,useEffect} from 'react'
     )
 }
  
- function Map(){
+ function Map({token}){
     const [spots,SetSpots] = useState([])
     const [clickedPos, setClickedPos] = useState(null)
     const [filterType,setFilterType] = useState('all')
@@ -97,7 +99,7 @@ import {useState,useEffect} from 'react'
             <ClickHandler setClickedPos={setClickedPos}></ClickHandler>
             {clickedPos && ( 
                 <Popup position={[clickedPos.lat,clickedPos.lng]}>
-                    <AddSpotForm clickedPos={clickedPos} onSpotAdded={handleNewSpot} setClickedPos={setClickedPos} />
+                    <AddSpotForm clickedPos={clickedPos} onSpotAdded={handleNewSpot} setClickedPos={setClickedPos} token={token} />
 
                 </Popup>
             )

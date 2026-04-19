@@ -3,13 +3,15 @@ from flask_cors import CORS
 import sqlite3
 import bcrypt
 from flask_jwt_extended import JWTManager, create_access_token
+from functools import wraps
+import jwt
 
 
 
 app = Flask(__name__)
 CORS(app)
 app.config['JWT_SECRET_KEY']='your_secret_key'
-jwt = JWTManager(app)
+jwt_manager = JWTManager(app)
 DB = "database.db"
 def get_db():
     conn = sqlite3.connect(DB)
@@ -39,14 +41,34 @@ def init_db():
                         ''')
     conn.commit()
     conn.close()
+SECRET_KEY = "your_secret_key"
+def token_required(f):
+    @wraps(f)
+    def decorated(*args,**kwargs):
+        token=None
+        auth_header=request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token=auth_header.split(" ")[1]
+        if not token:
+            return jsonify({"message":"token missisng"}),401
+        try:
+            data =jwt.decode(token,SECRET_KEY,algorithms=["HS256"])
+        except jwt.ExpiredSignatureError:
+            return jsonify({"message":"token expired"}),401
+        except jwt.InvalidTokenError:
+            return jsonify({"message":"invalid token"}),401
+        return f(*args,**kwargs)
+    return decorated
 
 @app.route('/spots',methods =['GET'])
+
 def get_spots():
     conn = get_db()
     spots = conn.execute("select * from spots").fetchall()
     conn.close()
     return jsonify([dict(row) for row in spots])
 @app.route('/spots', methods=['POST'])
+@token_required
 def add_spot():
     data = request.get_json()
     name = data['name']
@@ -112,6 +134,7 @@ def login():
         return jsonify({"error":"wrong password"}),401
     token = create_access_token(identity=username)
     return jsonify({"token":token}),200    
+
 
 if __name__ == "__main__":
     init_db()
