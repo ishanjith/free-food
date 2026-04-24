@@ -26,7 +26,8 @@ def init_db():
              description TEXT,
              latitude REAL NOT NULL,
              longitude REAL NOT NULL,
-             last_seen DATETIME DEFAULT CURRENT_TIMESTAMP
+             last_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
+             status TEXT DEFAULT 'pending'
              )    
                  
                  
@@ -64,7 +65,7 @@ def token_required(f):
 
 def get_spots():
     conn = get_db()
-    spots = conn.execute("select * from spots").fetchall()
+    spots = conn.execute("select * from spots where status = 'approved'").fetchall()
     conn.close()
     return jsonify([dict(row) for row in spots])
 @app.route('/spots', methods=['POST'])
@@ -135,6 +136,77 @@ def login():
     token = create_access_token(identity=username)
     return jsonify({"token":token}),200    
 
+def admin_required(f):
+    @wraps(f)
+    def decorated(*args,**kwargs):
+        token = None
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer"):
+            token=auth_header.split(" ")[1]
+        if not token:
+            return jsonify({"message":"token missing"}),401
+        try:
+            data = jwt.decode(token,SECRET_KEY,algorithms=["HS256"])
+            username = data["sub"]
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("SELECT role FROM users WHERE username = ?", (username,))
+            result = cursor.fetchone()
+            conn.close()
+            
+            if not result:
+                return jsonify({"message": "User not found"}), 401
+
+            role = result[0]
+            
+            if role != "admin":
+                return jsonify({"message": "Forbidden: Admins only"}), 403
+
+        except jwt.ExpiredSignatureError:
+            return jsonify({"message": "Token expired"}), 401
+
+        except jwt.InvalidTokenError:
+            return jsonify({"message": "Invalid token"}), 401
+        return f(*args, **kwargs)
+
+    return decorated
+@app.route('/admin/spots', methods = ['GET'])
+@admin_required
+def get_pending_spots():
+    conn = get_db()
+    spots = conn.execute(
+        "SELECT * FROM spots WHERE status = 'pending'"
+    ).fetchall()
+    conn.close()
+
+    return jsonify([dict(row) for row in spots])
+
+@app.route('/admin/spots/<int:id>/approve', methods=["PUT"])
+@admin_required
+def approve_spot(id):
+    conn = get_db()
+    conn.execute(
+        "UPDATE spots SET status = 'approved' WHERE id = ?",
+        (id,)
+    )
+    conn.commit()
+    conn.close()
+
+    return jsonify({"message": f"Spot {id} approved"})
+
+@app.route('/admin/spots/<int:id>/reject', methods=['PUT'])
+@admin_required
+def reject_spot(id):
+    conn = get_db()
+    conn.execute(
+        "UPDATE spots SET status = 'rejected' WHERE id = ?",
+        (id,)
+    )
+    conn.commit()
+    conn.close()
+
+    return jsonify({"message": f"Spot {id} rejected"})
+    
 
 if __name__ == "__main__":
     init_db()
