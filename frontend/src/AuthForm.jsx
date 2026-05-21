@@ -1,7 +1,7 @@
 import { useState  } from "react"
 
 
-function AuthForm({setToken}){
+function AuthForm({setToken,setRole}){
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
     const [isLogin, setIsLogin] = useState(true)
@@ -29,6 +29,7 @@ function AuthForm({setToken}){
         }
         if (isLogin){
             setToken(data.token)
+            setRole(data.role)
         }
         else{
             setIsLogin(true)

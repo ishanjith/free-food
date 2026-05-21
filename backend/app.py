@@ -101,7 +101,7 @@ def register():
     
     if not password or not username:
         return jsonify({"error":"username and password required"}),400
-    conn = sqlite3.connect("database.db")
+    conn = get_db()
     cursor = conn.cursor()
     
     cursor.execute("SELECT * from users where username = ?",(username,))
@@ -122,7 +122,7 @@ def login():
     data = request.get_json()
     username=data.get('username')
     password =data.get('password')
-    conn = sqlite3.connect("database.db")
+    conn = get_db()
     cursor =conn.cursor()
     cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
     user = cursor.fetchone()
@@ -134,7 +134,7 @@ def login():
     if not bcrypt.checkpw(password.encode('utf-8'),db_password):
         return jsonify({"error":"wrong password"}),401
     token = create_access_token(identity=username)
-    return jsonify({"token":token}),200    
+    return jsonify({"token":token,"role":user[3]}),200    
 
 def admin_required(f):
     @wraps(f)
