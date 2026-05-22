@@ -207,7 +207,7 @@ def reject_spot(id):
 
     return jsonify({"message": f"Spot {id} rejected"})
     
-
+init_db()
 if __name__ == "__main__":
-    init_db()
+    
     app.run(debug=True)
