@@ -1,6 +1,15 @@
 import {MapContainer,TileLayer,Marker,Popup, useMapEvents} from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import {useState,useEffect} from 'react'
+import L from 'leaflet'
+import markerIcon from 'leaflet/dist/images/marker-icon.png'
+import markerShadow from 'leaflet/dist/images/marker-shadow.png'
+
+L.Marker.prototype.options.icon = L.icon({
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+  iconAnchor: [12, 41],
+})
  function ClickHandler({setClickedPos}){
     useMapEvents({
         click(e){
