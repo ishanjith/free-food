@@ -2,7 +2,7 @@ import { useState,useEffect } from "react";
 function AdminPanel({token}){
     const[pendingSpots,setPendingspots] = useState([])
     useEffect(()=>{
-        fetch("http://127.0.0.1:5000/admin/spots",{headers:{
+        fetch(`${import.meta.env.VITE_API_URL}/admin/spots`,{headers:{
             Authorization: `Bearer ${token}`
         }})
         .then((res)=>res.json())
@@ -11,7 +11,7 @@ function AdminPanel({token}){
     },[])
     const handleApprove = async(id)=>{
         try{
-            await fetch(`http://127.0.0.1:5000/admin/spots/${id}/approve`,{
+            await fetch(`${import.meta.env.VITE_API_URL}/admin/spots/${id}/approve`,{
                 method : "PUT",
                 headers:{
                     Authorization:`Bearer ${token}`
@@ -24,7 +24,7 @@ function AdminPanel({token}){
     }
     const handleReject = async (id) => {
     try {
-      await fetch(`http://127.0.0.1:5000/admin/spots/${id}/reject`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/admin/spots/${id}/reject`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`

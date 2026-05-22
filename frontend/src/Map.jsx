@@ -22,7 +22,7 @@ import {useState,useEffect} from 'react'
             alert("name is empty")
             return
         }
-        fetch('http://127.0.0.1:5000/spots',{
+        fetch(`${import.meta.env.VITE_API_URL}/spots`,{
             method : 'POST',
             headers : {'Content-Type' : 'application/json',
                         'Authorization': `Bearer ${token}`
@@ -71,7 +71,7 @@ import {useState,useEffect} from 'react'
    
     
     useEffect(()=>{
-        fetch('http://127.0.0.1:5000/spots')
+        fetch(`${import.meta.env.VITE_API_URL}/spots`)
         .then(res => res.json())
         .then(data => {SetSpots(data)
     

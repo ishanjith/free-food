@@ -13,7 +13,7 @@ function AuthForm({setToken,setRole}){
 
         const endpoint = isLogin? "/login":"/register"
         try{
-            const res =await fetch(`http://localhost:5000${endpoint}`,{
+            const res =await fetch(`${import.meta.env.VITE_API_URL}${endpoint}`,{
                 method:"POST",
                 headers: {
           "Content-Type": "application/json"
