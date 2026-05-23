@@ -137,7 +137,7 @@ def login():
     if not user:
         return jsonify({"error":"user not found"}),400
     db_password=user['password']
-    if not bcrypt.checkpw(password.encode('utf-8'),db_password):
+    if not bcrypt.checkpw(password.encode('utf-8'),db_password.encode('utf-8')):
         return jsonify({"error":"wrong password"}),401
     token = create_access_token(identity=username)
     return jsonify({"token":token,"role":user['role']}),200    
