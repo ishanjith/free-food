@@ -115,7 +115,7 @@ def register():
         conn.close()
         return jsonify({"error": "username already exists"}),400
     
-    hashed_password = bcrypt.hashpw(password.encode('utf-8'),bcrypt.gensalt())
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'),bcrypt.gensalt()).decode('utf-8')
     
     cursor.execute("INSERT INTO users(username,password,role) VALUES(%s,%s,%s)",(username,hashed_password,'user'))
     conn.commit()
