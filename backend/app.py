@@ -1,10 +1,12 @@
 from flask import Flask,request,jsonify
 from flask_cors import CORS
-import sqlite3
 import bcrypt
 from flask_jwt_extended import JWTManager, create_access_token
 from functools import wraps
 import jwt
+import psycopg2
+import psycopg2.extras
+import os
 
 
 
@@ -12,29 +14,29 @@ app = Flask(__name__)
 CORS(app)
 app.config['JWT_SECRET_KEY']='your_secret_key'
 jwt_manager = JWTManager(app)
-DB = "database.db"
 def get_db():
-    conn = sqlite3.connect(DB)
-    conn.row_factory = sqlite3.Row
+    conn = psycopg2.connect(os.environ.get('DATABASE_URL'))
+    
     return conn
 def init_db():
     conn = get_db()
-    conn.execute('''
-             CREATE TABLE IF NOT EXISTS spots(id INTEGER PRIMARY KEY AUTOINCREMENT,
+    cursor=conn.cursor()
+    cursor.execute('''
+             CREATE TABLE IF NOT EXISTS spots(id SERIAL PRIMARY KEY,
              name TEXT NOT NULL,
              type TEXT,
              description TEXT,
              latitude REAL NOT NULL,
              longitude REAL NOT NULL,
-             last_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
+             last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
              status TEXT DEFAULT 'pending'
              )    
                  
                  
                  ''')
-    conn.execute('''
+    cursor.execute('''
                 CREATE TABLE IF NOT EXISTS users(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 username TEXT NOT NULL UNIQUE,
                 password TEXT NOT NULL,
                 role TEXT DEFAULT 'user'
@@ -65,7 +67,9 @@ def token_required(f):
 
 def get_spots():
     conn = get_db()
-    spots = conn.execute("select * from spots where status = 'approved'").fetchall()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cursor.execute("select * from spots where status = 'approved'")
+    spots=cursor.fetchall()
     conn.close()
     return jsonify([dict(row) for row in spots])
 @app.route('/spots', methods=['POST'])
@@ -79,13 +83,14 @@ def add_spot():
     longitude = data['longitude']
     
     conn = get_db()
-    cursor =conn.execute('''
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cursor.execute('''
                  
                  INSERT INTO spots(name,type,description,latitude,longitude)
-                 VALUES (?,?,?,?,?)
+                 VALUES (%s,%s,%s,%s,%s) RETURNING id
                  ''',(name,type,description,latitude,longitude))
     conn.commit()
-    new_id = cursor.lastrowid
+    new_id = cursor.fetchone()['id']
     conn.close()
     return jsonify({"id": new_id,
         "name": name,
@@ -104,7 +109,7 @@ def register():
     conn = get_db()
     cursor = conn.cursor()
     
-    cursor.execute("SELECT * from users where username = ?",(username,))
+    cursor.execute("SELECT * from users where username = %s",(username,))
     existing_user=cursor.fetchone()
     if existing_user:
         conn.close()
@@ -112,7 +117,7 @@ def register():
     
     hashed_password = bcrypt.hashpw(password.encode('utf-8'),bcrypt.gensalt())
     
-    cursor.execute("INSERT INTO users(username,password,role) VALUES(?,?,?)",(username,hashed_password,'user'))
+    cursor.execute("INSERT INTO users(username,password,role) VALUES(%s,%s,%s)",(username,hashed_password,'user'))
     conn.commit()
     conn.close()
     return jsonify({"message" : "user registered succesfully"}),201
@@ -123,18 +128,19 @@ def login():
     username=data.get('username')
     password =data.get('password')
     conn = get_db()
-    cursor =conn.cursor()
-    cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    
+    cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
     user = cursor.fetchone()
 
     conn.close()
     if not user:
         return jsonify({"error":"user not found"}),400
-    db_password=user[2]
+    db_password=user['password']
     if not bcrypt.checkpw(password.encode('utf-8'),db_password):
         return jsonify({"error":"wrong password"}),401
     token = create_access_token(identity=username)
-    return jsonify({"token":token,"role":user[3]}),200    
+    return jsonify({"token":token,"role":user['role']}),200    
 
 def admin_required(f):
     @wraps(f)
@@ -149,15 +155,16 @@ def admin_required(f):
             data = jwt.decode(token,SECRET_KEY,algorithms=["HS256"])
             username = data["sub"]
             conn = get_db()
-            cursor = conn.cursor()
-            cursor.execute("SELECT role FROM users WHERE username = ?", (username,))
+            cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+            
+            cursor.execute("SELECT role FROM users WHERE username = %s", (username,))
             result = cursor.fetchone()
             conn.close()
             
             if not result:
                 return jsonify({"message": "User not found"}), 401
 
-            role = result[0]
+            role = result['role']
             
             if role != "admin":
                 return jsonify({"message": "Forbidden: Admins only"}), 403
@@ -174,9 +181,11 @@ def admin_required(f):
 @admin_required
 def get_pending_spots():
     conn = get_db()
-    spots = conn.execute(
+    cursor =conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cursor.execute(
         "SELECT * FROM spots WHERE status = 'pending'"
-    ).fetchall()
+    )
+    spots=cursor.fetchall()
     conn.close()
 
     return jsonify([dict(row) for row in spots])
@@ -185,8 +194,9 @@ def get_pending_spots():
 @admin_required
 def approve_spot(id):
     conn = get_db()
-    conn.execute(
-        "UPDATE spots SET status = 'approved' WHERE id = ?",
+    cursor =conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cursor.execute(
+        "UPDATE spots SET status = 'approved' WHERE id = %s",
         (id,)
     )
     conn.commit()
@@ -198,8 +208,9 @@ def approve_spot(id):
 @admin_required
 def reject_spot(id):
     conn = get_db()
-    conn.execute(
-        "UPDATE spots SET status = 'rejected' WHERE id = ?",
+    cursor =conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cursor.execute(
+        "UPDATE spots SET status = 'rejected' WHERE id = %s",
         (id,)
     )
     conn.commit()
