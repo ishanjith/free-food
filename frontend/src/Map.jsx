@@ -59,16 +59,16 @@ L.Marker.prototype.options.icon = L.icon({
     }
 
     return (
-        <div onClick={e => e.stopPropagation()}>
-            <input value={name} onChange={e => setName(e.target.value)} /><br/>
+        <div className="spot-form" onClick={e => e.stopPropagation()}>
+            <input placeholder='Name' value={name} onChange={e => setName(e.target.value)} />
             <select value={type} onChange={e => setType(e.target.value)}>
                 <option value="">Select type</option>
                 <option value="annadhanam">Annadhanam</option>
                 <option value="community kitchen">Community Kitchen</option>
                 <option value="food bank">Food Bank</option>
                 <option value="other">Other</option>
-                </select> <br/>
-            <input value={description} onChange={e => setDescription(e.target.value)} /><br/>
+                </select>
+            <input placeholder='Description' value={description} onChange={e => setDescription(e.target.value)} />
             <button onClick={handleSubmit}>Submit</button>
         </div>
     )
