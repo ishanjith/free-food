@@ -3,6 +3,7 @@ import { useState } from "react"
 import AuthForm from "./AuthForm"
 import Map from "./Map"  
 import AdminPanel from "./AdminPanel"
+import "./Map.css"
 
 
 function App(){
@@ -14,13 +15,16 @@ function App(){
   console.log(role)
   return(
     <div>
-      <h1>Free Food Finder</h1>
+      
       {token? (
         <>
+        <div className="navbar">
+          <h1>Free Food Finder</h1>
         <button onClick={()=>{setToken(null) ;setRole(null)
           localStorage.removeItem("token")
           localStorage.removeItem("role")
         }}>Logout</button>
+        </div>
         <Map token={token} role={role}/>
         {role==="admin" && (
           <AdminPanel token={token}/>

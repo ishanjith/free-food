@@ -1,0 +1,48 @@
+.map-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.navbar {
+  background-color: #f97316;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar h1 {
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+.navbar button {
+  background: white;
+  color: #f97316;
+  border: none;
+  padding: 0.4rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.map-controls {
+  padding: 0.5rem 1rem;
+  background: #fff7ed;
+  border-bottom: 1px solid #fed7aa;
+}
+
+.map-controls select {
+  padding: 0.4rem 0.75rem;
+  border: 1px solid #fed7aa;
+  border-radius: 6px;
+  background: white;
+  color: #374151;
+  font-size: 0.9rem;
+}
+
+.map-wrapper {
+  flex: 1;
+}
