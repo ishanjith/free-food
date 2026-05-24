@@ -1,7 +1,13 @@
 .map-page {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: calc(100vh - 52px);
+  overflow: hidden;
+}
+
+.map-wrapper {
+  flex: 1;
+  min-height: 0;
 }
 body {
   margin: 0;
@@ -46,9 +52,7 @@ body {
   font-size: 0.9rem;
 }
 
-.map-wrapper {
-  flex: 1;
-}
+
 .spot-form {
   display: flex;
   flex-direction: column;
