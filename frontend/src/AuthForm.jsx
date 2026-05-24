@@ -45,8 +45,8 @@ return(
     <div className="auth-container">
         <div className="auth-card">
             <h2>{isLogin ? "Welcome Back" : "Create Account"}</h2>
-    <div>
-        <h2>{isLogin? "login":"register"}</h2>
+    
+        
         <form onSubmit={handleSubmit}>
         <input
           type="text"
@@ -55,7 +55,7 @@ return(
           onChange={(e) => setUsername(e.target.value)}
         />
 
-        <br />
+        
         <input
           type="password"
           placeholder="Password"
@@ -63,26 +63,25 @@ return(
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        <br />
+       
         <button type="submit">
           {isLogin ? "Login" : "Register"}
         </button>
       </form>
       {error && <p style={{color:"red"}}>{error}</p>}
-      <p>
+      <p className="auth-switch">
         {isLogin? "Dont have an account?": "Already have an account?"}
         {" "}
         <span onClick={()=>{
             setIsLogin(!isLogin)
             setError(null)
-        }}
-        style={{color:"blue" , cursor:"pointer"}}>
+        }}>
             {isLogin? "register": "login"}
         </span>
       </p>
     </div>
     </div>
-    </div>
+    
 )
 }
 export default AuthForm
