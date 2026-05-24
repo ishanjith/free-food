@@ -3,7 +3,10 @@
   flex-direction: column;
   height: 100vh;
 }
-
+body {
+  margin: 0;
+  background-color: #1a1a2e;
+}
 .navbar {
   background-color: #f97316;
   color: white;
