@@ -125,7 +125,7 @@ L.Marker.prototype.options.icon = L.icon({
                     <span className="spot-type">{spot.type}</span>
                     <p>{spot.description}</p>
                     
-                    <small>Last seen: {new Date(spot.last_seen).toLocaleDateString()}</small>
+                    <small>Date added: {new Date(spot.last_seen).toLocaleDateString()}</small>
                         </div>
                 </Popup>
             </Marker>))}
