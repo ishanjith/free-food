@@ -30,12 +30,14 @@ function AuthForm({setToken,setRole}){
         if (isLogin){
             setToken(data.token)
             setRole(data.role)
+            localStorage.setItem("token", data.token)
+            localStorage.setItem("role", data.role)
         }
         else{
             setIsLogin(true)
         }
     }catch(err){
-        setError("server erroir")
+        setError("server error")
     }
 }
 return(
