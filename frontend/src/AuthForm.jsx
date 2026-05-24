@@ -1,4 +1,5 @@
 import { useState  } from "react"
+import './AuthForm.css'
 
 
 function AuthForm({setToken,setRole}){
@@ -41,6 +42,9 @@ function AuthForm({setToken,setRole}){
     }
 }
 return(
+    <div className="auth-container">
+        <div className="auth-card">
+            <h2>{isLogin ? "Welcome Back" : "Create Account"}</h2>
     <div>
         <h2>{isLogin? "login":"register"}</h2>
         <form onSubmit={handleSubmit}>
@@ -76,6 +80,8 @@ return(
             {isLogin? "register": "login"}
         </span>
       </p>
+    </div>
+    </div>
     </div>
 )
 }
