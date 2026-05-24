@@ -120,11 +120,13 @@ L.Marker.prototype.options.icon = L.icon({
             {spots.filter(spot=> filterType==='all' || spot.type===filterType).map(spot =>(
             <Marker key={spot.id} position={[spot.latitude,spot.longitude]}> 
                 <Popup>
-                    <b>{spot.name}</b><br/>
-                    <b>{spot.description}</b><br/>
-                    <b>{spot.type}</b><br/>
-                    <b><span>Last seen :{spot.last_seen}</span></b>
-
+                    <div className='spot-popup'>
+                    <h3>{spot.name}</h3>
+                    <span className="spot-type">{spot.type}</span>
+                    <p>{spot.description}</p>
+                    
+                    <small>Last seen: {new Date(spot.last_seen).toLocaleDateString()}</small>
+                        </div>
                 </Popup>
             </Marker>))}
         </MapContainer></div></div>
