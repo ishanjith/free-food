@@ -5,6 +5,7 @@ import L from 'leaflet'
 import markerIcon from 'leaflet/dist/images/marker-icon.png'
 import markerShadow from 'leaflet/dist/images/marker-shadow.png'
 import './Map.css'
+import { useMap } from 'react-leaflet'
 
 L.Marker.prototype.options.icon = L.icon({
   iconUrl: markerIcon,
@@ -73,6 +74,28 @@ L.Marker.prototype.options.icon = L.icon({
         </div>
     )
 }
+function LocateButton(){
+    const map = useMap()
+
+    function Handlelocate(){
+        navigator.geolocation.getCurrentPosition((position)=>{
+            const lat = position.coords.latitude
+            const lng = position.coords.longitude
+
+            map.flyTo([lat,lng],14)
+
+        },
+    (error)=>{
+        console.log("error")
+        alert("could not get location")
+    })
+    }
+    return(
+        <div style={{position:'absolute', bottom:'30px', right:'10px', zIndex:1000}}>
+        <button onClick={Handlelocate} className='locate-btn'>📍My Location</button></div>
+    )
+}
+
  
  function Map({token}){
     const [spots,SetSpots] = useState([])
@@ -108,6 +131,7 @@ L.Marker.prototype.options.icon = L.icon({
         <MapContainer center={[10.85,76.27]} zoom={13} style={{height : "100%", width : "100%"}}>
             
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution="openstreet map"/>
+            <LocateButton/>
             <ClickHandler setClickedPos={setClickedPos}></ClickHandler>
             {clickedPos && ( 
                 <Popup position={[clickedPos.lat,clickedPos.lng]}>
