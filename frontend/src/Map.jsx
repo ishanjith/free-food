@@ -77,7 +77,7 @@ L.Marker.prototype.options.icon = L.icon({
 function LocateButton(){
     const map = useMap()
 
-    function Handlelocate(){
+    function HandleLocate(){
         navigator.geolocation.getCurrentPosition((position)=>{
             const lat = position.coords.latitude
             const lng = position.coords.longitude
@@ -92,7 +92,9 @@ function LocateButton(){
     }
     return(
         <div style={{position:'absolute', bottom:'30px', right:'10px', zIndex:1000}}>
-        <button onClick={Handlelocate} className='locate-btn'>📍My Location</button></div>
+        <button onClick={(e)=>{
+            e.stopPropagation()
+            HandleLocate()}} className='locate-btn'>📍My Location</button></div>
     )
 }
 
