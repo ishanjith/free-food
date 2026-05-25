@@ -93,6 +93,7 @@ function LocateButton(){
     return(
         <div style={{position:'absolute', bottom:'30px', right:'10px', zIndex:1000}}>
         <button onClick={(e)=>{
+            e.preventDefault()
             e.stopPropagation()
             HandleLocate()}} className='locate-btn'>📍My Location</button></div>
     )
