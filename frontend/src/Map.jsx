@@ -1,6 +1,6 @@
 import {MapContainer,TileLayer,Marker,Popup, useMapEvents} from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
-import {useState,useEffect} from 'react'
+import {useState,useEffect,useRef} from 'react'
 import L from 'leaflet'
 import markerIcon from 'leaflet/dist/images/marker-icon.png'
 import markerShadow from 'leaflet/dist/images/marker-shadow.png'
@@ -76,6 +76,12 @@ L.Marker.prototype.options.icon = L.icon({
 }
 function LocateButton(){
     const map = useMap()
+    const buttonRef = useRef(null)
+    useEffect(() => {
+    if (buttonRef.current) {
+        L.DomEvent.disableClickPropagation(buttonRef.current)
+        }
+        }, [])
 
     function HandleLocate(){
         navigator.geolocation.getCurrentPosition((position)=>{
@@ -91,7 +97,7 @@ function LocateButton(){
     })
     }
     return(
-        <div style={{position:'absolute', bottom:'30px', right:'10px', zIndex:1000}}
+        <div ref={buttonRef} style={{position:'absolute', bottom:'30px', right:'10px', zIndex:1000}}
         onClick={(e) => {
     e.stopPropagation()}}>
         <button onClick={(e)=>{
