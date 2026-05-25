@@ -91,7 +91,9 @@ function LocateButton(){
     })
     }
     return(
-        <div style={{position:'absolute', bottom:'30px', right:'10px', zIndex:1000}}>
+        <div style={{position:'absolute', bottom:'30px', right:'10px', zIndex:1000}}
+        onClick={(e) => {
+    e.stopPropagation()}}>
         <button onClick={(e)=>{
             e.preventDefault()
             e.stopPropagation()
