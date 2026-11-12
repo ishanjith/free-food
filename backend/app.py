@@ -12,7 +12,7 @@ import os
 
 app = Flask(__name__)
 CORS(app)
-app.config['JWT_SECRET_KEY']='your_secret_key'
+app.config['JWT_SECRET_KEY'] = os.environ["JWT_SECRET_KEY"]
 jwt_manager = JWTManager(app)
 def get_db():
     conn = psycopg2.connect(os.environ.get('DATABASE_URL'))
@@ -44,7 +44,7 @@ def init_db():
                         ''')
     conn.commit()
     conn.close()
-SECRET_KEY = "your_secret_key"
+SECRET_KEY = app.config['JWT_SECRET_KEY']
 def token_required(f):
     @wraps(f)
     def decorated(*args,**kwargs):
